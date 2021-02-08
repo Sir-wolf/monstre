@@ -1,9 +1,8 @@
-import random
+from random import *
 
 #https://fr.wikipedia.org/wiki/Liste_des_divinit%C3%A9s_slaves
 
-class Monster():
-
+class Monstre():
     def __init__(self,maxVie=100,MaxAttaque=5,maxVitesse=3,nom="",description=""):
         self.vie = maxVie
         self.max_vie = maxVie
@@ -12,21 +11,39 @@ class Monster():
         self.nom = nom
         self.description = description
 
-
-    def __add__(self, other):
-        return Monster(maxVie=(self.vie+other.vie),  MaxAttaque=(self.attaque+other.attaque), maxVitesse=(self.vitesse+other.vitesse),  nom=f" {self.nom} et {other.nom}")
+    def monstreAlea():
+        k=randint(1,10)
+        if k==1:
+            return Monstre.babayaga()
+        elif k==2:
+            Monstre.rod()
+        elif k==3: return Monstre.likho()
+        elif k==4: return Monstre.zaria()
+        else:return Monstre(maxVie=randint(30,50),
+                            MaxAttaque=randint(1,3)+randint(1,2),
+                            maxVitesse=randint(2,3),
+                            nom="MonstreAlea")
+    def monstrePerso(vie=100):
+        lnom = [vodianoï, léchi, domovoï, Almasty, Dzedka, Indrik, Lazavik, Polkan, Zlydzens] #https://fr.wikipedia.org/wiki/Liste_de_cr%C3%A9atures_l%C3%A9gendaires
+        l = [i for i in range(len(lnom))]
+        nom = random.choice(l)
+        return Monstre(maxVie=randint(vie-10,vie+10),
+                            MaxAttaque=randint(1,3)+randint(1,2),
+                            maxVitesse=randint(2,3),
+                            nom=nom)
 
     def babayaga():
-            return Monster(maxVie=2000,  MaxAttaque=50, maxVitesse=1,  nom = "Baba Yaga", description= "Sorcière qui mange les petits enfants.")
+        "Renvoie un Babayaga"
+        return Monstre(maxVie=2000,  MaxAttaque=50, maxVitesse=1,  nom = "Baba Yaga", description= "Sorcière qui mange les petits enfants.")
 
     def likho():
-            return Monster(maxVie=1000,  MaxAttaque=25, maxVitesse=8,  nom = "Likho",description= "Personnification du mauvais sort et de la malchance.")
+        return Monstre(maxVie=1000,  MaxAttaque=25, maxVitesse=8,  nom = "Likho",description= "Personnification du mauvais sort et de la malchance.")
 
     def rod():
-            return Monster(maxVie=1000000,  MaxAttaque=500, maxVitesse=3,  nom = "Rod",description="Père des dieux, créateur de tout ce qui existe.")
+        return Monstre(maxVie=1000000,  MaxAttaque=500, maxVitesse=3,  nom = "Rod",description="Père des dieux, créateur de tout ce qui existe.")
 
     def zaria():
-            return Monster(maxVie=5000,  MaxAttaque=500, maxVitesse=100,  nom = "Zaria",description="Déesse de la beauté.")
+        return Monstre(maxVie=5000,  MaxAttaque=500, maxVitesse=100,  nom = "Zaria",description="Déesse de la beauté.")
 
         #todo (plus tard): faire des monstres  partir d'un dictionnaire
 
@@ -45,38 +62,86 @@ class Monster():
         return s
 
     def __repr__(self):
-        return f'Monster({self.nom}, {self.vie}/{self.max_vie}, {self.description}, {self.attaque}, {self.vitesse})'
+        return f'Monstre({self.nom}, {self.vie}/{self.max_vie}, {self.description}, {self.attaque}, {self.vitesse})'
 
 
-class GroupeDeMonstre(): 
-	lm = [Monster.rod(), Monster.babayaga(), Monster.likho(), Monster.zaria()]
-	#nbpoints=10000 je ne sais pas comment faire
-	def groupeAlea(n=10): 
-		lmAlea = []
-		l = [i for i in range(len(GroupeDeMonstre.lm))]
-		for k in range(n):
-			lmAlea.append(GroupeDeMonstre.lm[random.choice(l)])
-		print(lmAlea) 
+class GroupeDeMonstre():
 
-	def combattre(self,other): #Exécute le combat de deux groupes de monstres
-		pass
+    #nbpoints=10000 je ne sais pas comment faire
+    def __init__(self,nom,lmonstres):
+        self.lmonstres=lmonstres #Liste des monstres composant le groupe
+        self.nom=nom  #le nom du groupe
 
-	def meilleurGroupe(nbPoints=10000,nbCombats=1000):  #Renvoie le meilleur groupe de monstres de nbpoints après avoir fait fait nbCombats entre groupes
-		pass
+    def groupeAlea(nom="Groupe à Léa",n=10):
+        lm = [Monstre.monstreAlea() for k in range(n)]
+        #TB mais on peut faire plus simple
+##		l = [i for i in range(len(GroupeDeMonstre.lfm))]
+##		for k in range(n):
+##			lmAlea.append(GroupeDeMonstre.lm[random.choice(l)])
+        g= GroupeDeMonstre(nom=nom,lmonstres=lm)
+        return g
 
+    def groupeAleaVal(nom="Groupe à Léa",TotalPV=1000000,j=100):
+        "Renvoie un groupe de monstre avec à peu près TotalPV de points de vie"
+        i=0 
+        lm = []
+        while(i==j):
+            lm.append(Monstre.monstrePerso(vie=TotalPV/j))
+            i+=1
+        g= GroupeDeMonstre(nom=nom,lmonstres=lm)
+        return g
+
+        
+
+    def combattre(self,other):
+        while not(self.lmonstres or other.lmonstres):
+            if not(self.lmonstres):
+                return False
+            elif not(other.lmonstres):
+                return True
+            else:
+                if Monstre.combat(self.lmonstres[-1], other.lmonstres[-1]) == True:
+                    del other.lmonstres[-1]
+                else:
+                    del self.lmonstres[-1]
+        #Exécute le combat de deux groupes de monstres
+		#Tant que les listes de monstres self et other ne sont pas vides
+        # On fait se combattre deux monstres
+        #self.lmonstres est la liste des montres du groupe self
+        #other.lmonstres est la liste des monstres gu roupe other
+        #self.lmonstres[0] est le premier monstre du groupe self
+        
+    def meilleurGroupe(nbPoints=10000,nbCombats=1000):
+        "Renvoie le meilleur groupe de monstres de nbpoints après avoir fait fait nbCombats entre groupes"
+        pass
+
+    def __str__(self):
+        s=f" {self.nom} comporte {self.n} monstres : "
+        for m in self.lmonstres:
+            s+="\n      "+str(m)
+        return s
 
 def main():
-    babayaga1=Monster.babayaga()
+    m1=Monstre(nom="Albert")
+    print(m1)
+    babayaga1=Monstre.babayaga()
     print(babayaga1)
-    repr(babayaga1)
-    likho=Monster.likho()
-    rod=Monster.rod()
-    zaria=Monster.zaria()
-    if Monster.combat(babayaga1+babayaga1, likho+babayaga1) == True:
+    print(repr(babayaga1))
+    likho1=Monstre.likho()
+    rod1=Monstre.rod()
+    zaria1=Monstre.zaria()
+    g2=GroupeDeMonstre.groupeAlea(nom="Groupe 2",n=5)
+    g1=GroupeDeMonstre(nom="Groupe 1",lmonstres=[babayaga1,likho1,rod1,zaria1])
+    if (GroupeDeMonstre.combattre(GroupeDeMonstre.groupeAleaVal(nom="Groupe 1",TotalPV=100000,j=100),GroupeDeMonstre.groupeAleaVal(nom="Groupe 2",TotalPV=50000,j=100)) == True):
+        print("Gagné !")
+    else: 
+        print("Perdu !")
+    
+    g1.combattre(g2)
+    if len(g1.lmonstres)>0:
         print("Gagné ! ")
     else:
         print("Perdu !")
-    GroupeDeMonstre.groupeAlea()
 
 #https://docs.python.org/fr/3/library/__main__.html
 if __name__ == "__main__":
