@@ -1,4 +1,5 @@
 from random import *
+import itertools as it
 
 #https://fr.wikipedia.org/wiki/Liste_des_divinit%C3%A9s_slaves
 
@@ -24,9 +25,9 @@ class Monstre():
                             maxVitesse=randint(2,3),
                             nom="MonstreAlea")
     def monstrePerso(vie=100):
-        lnom = [vodianoï, léchi, domovoï, Almasty, Dzedka, Indrik, Lazavik, Polkan, Zlydzens] #https://fr.wikipedia.org/wiki/Liste_de_cr%C3%A9atures_l%C3%A9gendaires
+        lnom = ["vodianoï", "léchi", "domovoï", "Almasty", "Dzedka", "Indrik", "Lazavik", "Polkan", "Zlydzens"] #https://fr.wikipedia.org/wiki/Liste_de_cr%C3%A9atures_l%C3%A9gendaires
         l = [i for i in range(len(lnom))]
-        nom = random.choice(l)
+        nom = choice(l)
         return Monstre(maxVie=randint(vie-10,vie+10),
                             MaxAttaque=randint(1,3)+randint(1,2),
                             maxVitesse=randint(2,3),
@@ -85,7 +86,7 @@ class GroupeDeMonstre():
         "Renvoie un groupe de monstre avec à peu près TotalPV de points de vie"
         i=0 
         lm = []
-        while(i==j):
+        while(i < j):
             lm.append(Monstre.monstrePerso(vie=TotalPV/j))
             i+=1
         g= GroupeDeMonstre(nom=nom,lmonstres=lm)
@@ -94,7 +95,7 @@ class GroupeDeMonstre():
         
 
     def combattre(self,other):
-        while not(self.lmonstres or other.lmonstres):
+        while(self.lmonstres or other.lmonstres):
             if not(self.lmonstres):
                 return False
             elif not(other.lmonstres):
@@ -113,8 +114,29 @@ class GroupeDeMonstre():
         
     def meilleurGroupe(nbPoints=10000,nbCombats=1000):
         "Renvoie le meilleur groupe de monstres de nbpoints après avoir fait fait nbCombats entre groupes"
-        pass
+        lsmonstres = [Monstre.babayaga(), Monstre.rod(), Monstre.likho(), Monstre.zaria()]
+        lcombo = []
+        for i in range(1, len(lsmonstres)+1):
+            lcombo.append(list(it.combinations(lsmonstres, i)))
+        for k in range(0, nbCombats):
+            if GroupeDeMonstre.combattre(lcombo[k], lcombo[k+1]):
+                del lcombo[k+1]
+        return lcombo
+"""
+Traceback (most recent call last):
+  File "monstre080221.py", line 156, in <module>
+    GroupeDeMonstre.meilleurGroupe()
+  File "monstre080221.py", line 122, in meilleurGroupe
+    if GroupeDeMonstre.combattre(lcombo[k], lcombo[k+1]):
+  File "monstre080221.py", line 98, in combattre
+    while(self.lmonstres or other.lmonstres):
+AttributeError: 'list' object has no attribute 'lmonstres'
 
+je ne comprend pas pourquoi
+
+
+"""
+        
     def __str__(self):
         s=f" {self.nom} comporte {self.n} monstres : "
         for m in self.lmonstres:
@@ -132,17 +154,20 @@ def main():
     zaria1=Monstre.zaria()
     g2=GroupeDeMonstre.groupeAlea(nom="Groupe 2",n=5)
     g1=GroupeDeMonstre(nom="Groupe 1",lmonstres=[babayaga1,likho1,rod1,zaria1])
-    if (GroupeDeMonstre.combattre(GroupeDeMonstre.groupeAleaVal(nom="Groupe 1",TotalPV=100000,j=100),GroupeDeMonstre.groupeAleaVal(nom="Groupe 2",TotalPV=50000,j=100)) == True):
+    if (GroupeDeMonstre.combattre(
+        GroupeDeMonstre.groupeAleaVal(nom="Groupe 1",TotalPV=100000,j=100),
+        GroupeDeMonstre.groupeAleaVal(nom="Groupe 2",TotalPV=5000,j=100)
+        )):
         print("Gagné !")
     else: 
         print("Perdu !")
     
-    g1.combattre(g2)
     if len(g1.lmonstres)>0:
         print("Gagné ! ")
     else:
         print("Perdu !")
-
+GroupeDeMonstre.meilleurGroupe()
 #https://docs.python.org/fr/3/library/__main__.html
 if __name__ == "__main__":
     main()
+                
